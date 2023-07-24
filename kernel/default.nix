@@ -20,7 +20,7 @@ in pkgsAarch64.buildLinux (args // {
     src = fetchFromGitHub {
       owner = "OE4T";
       repo = "linux-tegra-5.10";
-      rev = "26cfd067b9113af207849146b86607a10fedd5c6"; # latest on oe4t-patches-l4t-r35.3.ga as of 2023-03-29
+      rev = "7191dccf8670635906182cc2da862d9c0fdcb93a"; # latest on oe4t-patches-l4t-r35.3.ga as of 2023-03-29
       sha256 = "sha256-3HGnrfBJY+38zXA3YISK/DCh3w/7dZtH3If9GaBr4a8=";
     };
     # Remove device tree overlays with some incorrect "remote-endpoint" nodes.
