@@ -109,7 +109,7 @@ let
     owner = "NVIDIA";
     repo = "nvidia-modprobe";
     rev = modprobeVersion;
-    sha256 = "sha256-Y3ZOfge/EcmhqJ19yWO7UfPqkvY1CHHvFC5l9vYyGuU=";
+    sha256 = "sha256-c2G0qatv0LMZ0RAbluB9TyHkZAVbdGf4U8RMghjHgrs=";
   };
   modprobePatch = substituteAll {
     src = ./modprobe.patch;
