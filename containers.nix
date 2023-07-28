@@ -135,7 +135,7 @@ let
     ${nvidia_container_toolkit}/bin/nvidia-ctk "$@" 2>&1 | ${coreutils}/bin/tee /root/ctk
   '';
   nvidia_container_runtime_hook = writeShellScriptBin "nvidia-container-runtime-hook" ''
-    exec ${nvidia_container_toolkit}/bin/nvidia-container-runtime-hook "$@"
+    exec ${nvidia_container_toolkit}/bin/nvidia-container-runtime-hook -c /root/flake/config.toml "$@"
   '';
 in {
     inherit libnvidia_container0 libnvidia_container1 libnvidia_container_tools;
