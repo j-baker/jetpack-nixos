@@ -73,7 +73,7 @@ in
         default = false;
         type = types.bool;
         description = "Whether to register the nVidia container runtime hook.";
-      }
+      };
     };
   };
 
