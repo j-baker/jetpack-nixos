@@ -68,6 +68,12 @@ in
         description = "Whether to mount the ESP partition on eMMC under /opt/nvidia/esp on Xavier AGX platforms. Needed for capsule updates";
         internal = true;
       };
+
+      docker = mkOption {
+        default = false;
+        type = types.bool;
+        description = "Whether to register the nVidia container runtime hook.";
+      }
     };
   };
 
@@ -179,5 +185,10 @@ in
 
     # Used by libEGL_nvidia.so.0
     environment.etc."egl/egl_external_platform.d".source = "/run/opengl-driver/share/egl/egl_external_platform.d/";
+
+    virtualisation.docker = lib.optional cfg.docker {
+      daemon.settings.runtimes.nvidia = "${pkgs.nvidia-jetpack.nvidia-docker}/bin/nvidia-container-runtime";
+    };
+    systemd.services.docker.path = lib.optional cfg.docker [ pkgs.nvidia-jetpack.nvidia-docker ];
   };
 }

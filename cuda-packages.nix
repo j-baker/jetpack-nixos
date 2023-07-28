@@ -216,11 +216,7 @@ let
     libcusparse = buildFromSourcePackage { name = "libcusparse"; };
     libnpp = buildFromSourcePackage { name = "libnpp"; };
     libcudla = buildFromSourcePackage { name = "libcudla"; buildInputs = [ l4t.l4t-cuda ]; };
-    libnvidia_container_0 = buildFromDebs { name = "libnvidia-container0";
-        version = "0.11.0+jetpack";
-        srcs = debs.common."libnvidia-container0".src;
-        meta.platforms = [ "aarch64-linux" ];
-    };
+
     nsight_compute_target = buildFromDebs {
       name = "nsight-compute-target";
       version = nsight_compute_version;
