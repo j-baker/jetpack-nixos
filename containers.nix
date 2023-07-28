@@ -2,6 +2,7 @@
   lib,
   stdenv,
   dpkg,
+  debs,
   autoPatchelfHook,
   libcap,
   libseccomp,
