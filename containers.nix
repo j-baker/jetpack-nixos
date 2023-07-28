@@ -19,6 +19,7 @@
 pkg-config, rpcsvc-proto, makeWrapper, removeReferencesTo,
 }:
 
+
 let
   debsForSourcePackage = srcPackageName: lib.filter (pkg: (pkg.source or "") == srcPackageName) (builtins.attrValues debs.common);
 
@@ -163,9 +164,6 @@ let
   preBuild = ''
     HOME="$(mktemp -d)"
   '';
-
-  env.NIX_CFLAGS_COMPILE = toString [ "-I${libtirpc.dev}/include/tirpc" ];
-  NIX_LDFLAGS = [ "-L${libtirpc.dev}/lib" "-ltirpc" ];
 
   nativeBuildInputs = [ pkg-config rpcsvc-proto makeWrapper removeReferencesTo ];
 
