@@ -133,7 +133,7 @@ in {
     nvidiaContainerRuntime = nvidia_container_toolkit;
     nvidiaContainerTools = writeShellScriptBin "nvidia-container-runtime" ''
       export PATH="$PATH:${libnvidia_container_tools}/bin"
-      exec ${libnvidia_container_tools}/bin/nvidia-container-runtime $@
+      exec ${libnvidia_container_tools}/bin/nvidia-container-runtime "$@"
     '';
     nvidiaContainerTools = libnvidia_container_tools;
 }
