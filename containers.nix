@@ -135,5 +135,4 @@ in {
       export PATH="$PATH:${libnvidia_container_tools}/bin"
       exec ${libnvidia_container_tools}/bin/nvidia-container-runtime "$@"
     '';
-    nvidiaContainerTools = libnvidia_container_tools;
 }
