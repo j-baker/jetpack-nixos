@@ -104,12 +104,12 @@ let
     srcs = builtins.map (deb: deb.src) (debsForSourcePackage name);
   } // args);
 
-  modprobeVersion = "495.44";
+  modprobeVersion = "396.51";
   nvidia-modprobe = fetchFromGitHub {
     owner = "NVIDIA";
     repo = "nvidia-modprobe";
     rev = modprobeVersion;
-    sha256 = "sha256-Y3ZOfge/EcmhqI19yWO7UfPqkvY1CHHvFC5l9vYyGuU=";
+    sha256 = "sha256-Y3ZOfge/EcmhqJ19yWO7UfPqkvY1CHHvFC5l9vYyGuU=";
   };
   modprobePatch = substituteAll {
     src = ./modprobe.patch;
