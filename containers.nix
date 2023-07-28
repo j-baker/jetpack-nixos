@@ -132,7 +132,7 @@ let
 
   postPatch = ''
     sed -i \
-      -e 's/^REVISION ?=.*/REVISION = ${src.rev}/' \
+      -e 's/^REVISION :=.*/REVISION = ${src.rev}/' \
       -e 's/^COMPILER :=.*/COMPILER = $(CC)/' \
       mk/common.mk
 
