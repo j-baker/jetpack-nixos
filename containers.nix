@@ -7,6 +7,7 @@
   autoAddOpenGLRunpathHook,
   libcap,
   libseccomp,
+  writeShellScriptBin,
 }:
 
 let
@@ -130,5 +131,9 @@ let
 in {
     inherit libnvidia_container0 libnvidia_container1 libnvidia_container_tools;
     nvidiaContainerRuntime = nvidia_container_toolkit;
+    nvidiaContainerTools = writeShellScriptBin "nvidia-container-runtime" ''
+      export PATH="$PATH:${libnvidia_container_tools}/bin"
+      exec ${libnvidia_container_tools}/bin/nvidia-container-runtime $@
+    '';
     nvidiaContainerTools = libnvidia_container_tools;
 }
