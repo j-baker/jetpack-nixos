@@ -6,7 +6,7 @@
   autoPatchelfHook,
   autoAddOpenGLRunpathHook,
   addOpenGLRunpath,
-  fetchFromGithub,
+  fetchFromGitHub,
   libelf,
   libcap,
   libtirpc,
@@ -116,7 +116,7 @@ let
   libnvidia_container0 = stdenv.mkDerivation rec {
     pname = "libnvidia-container";
     version = "0.11.0+jetpack";
-    src = fetchFromGithub {
+    src = fetchFromGitHub {
       owner = "NVIDIA";
       repo = "libnvidia-container";
       rev = "v${version}";
