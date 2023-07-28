@@ -186,9 +186,9 @@ in
     # Used by libEGL_nvidia.so.0
     environment.etc."egl/egl_external_platform.d".source = "/run/opengl-driver/share/egl/egl_external_platform.d/";
 
-    virtualisation.docker = lib.optional cfg.docker {
+    virtualisation.docker = lib.optionalAttrs cfg.docker {
       daemon.settings.runtimes.nvidia = "${pkgs.nvidia-jetpack.nvidia-docker}/bin/nvidia-container-runtime";
     };
-    systemd.services.docker.path = lib.optional cfg.docker [ pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime ];
+    systemd.services.docker.path = lib.optionalAttrs cfg.docker [ pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime ];
   };
 }
