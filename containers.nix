@@ -9,6 +9,7 @@
   fetchFromGitHub,
   libelf,
   libcap,
+  libtirpc,
   libseccomp,
   substituteAll,
   git,
@@ -127,6 +128,7 @@ let
 
     patches = [
       ./nvc_ldcache.patch
+      ./avoid-static-libtirpc-build.patch
     ];
 
   postPatch = ''
@@ -140,7 +142,7 @@ let
     chmod -R u+w deps/src
     pushd deps/src
 
-    # patch -p0 < ${modprobePatch}
+    patch -p0 < ${modprobePatch}
     touch nvidia-modprobe-${modprobeVersion}/.download_stamp
     popd
 
@@ -165,9 +167,12 @@ let
     HOME="$(mktemp -d)"
   '';
 
+  NIX_CFLAGS_COMPILE = toString [ "-I${libtirpc.dev}/include/tirpc" ];
+  NIX_LDFLAGS = [ "-L${libtirpc.dev}/lib" "-ltirpc" ];
+
   nativeBuildInputs = [ pkg-config rpcsvc-proto makeWrapper removeReferencesTo ];
 
-  buildInputs = [ git libelf libcap libseccomp ];
+  buildInputs = [ git libelf libcap libseccomp libtirpc ];
 
   makeFlags = [
     "WITH_LIBELF=yes"
@@ -175,6 +180,7 @@ let
     # we can't use the WITH_TIRPC=yes flag that exists in the Makefile for the
     # same reason we patch out the static library use of libtirpc so we set the
     # define in CFLAGS
+    "CFLAGS=-DWITH_TIRPC"
   ];
 
   postInstall =
