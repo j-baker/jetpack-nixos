@@ -100,6 +100,9 @@ let
     buildInputs = [ libcap libseccomp ];
     srcs = debs.common."libnvidia-container0".src;
     meta.platforms = [ "aarch64-linux" ];
+    postInstall = ''
+      sed -i "s@/etc/ld.so.cache@/tmp/ld.so.cache@" "$out/libnvidia-container.so.0.11.0"
+    '';
   };
   libnvidia_container1 = buildFromDebs {
     name = "libnvidia-container1";
