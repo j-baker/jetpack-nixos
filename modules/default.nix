@@ -186,10 +186,10 @@ in
     # Used by libEGL_nvidia.so.0
     environment.etc."egl/egl_external_platform.d".source = "/run/opengl-driver/share/egl/egl_external_platform.d/";
 
-    virtualisation.docker = lib.optionalAttrs cfg.docker {
+    virtualisation.docker = lib.optionalAttrs (false && cfg.docker) {
       daemon.settings.runtimes.nvidia.path = "${pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime}/bin/nvidia-container-runtime";
     };
-    systemd.services.docker.path = lib.optionalAttrs cfg.docker [ pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime ];
+    # systemd.services.docker.path = lib.optionalAttrs cfg.docker [ pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime ];
     systemd.services.docker.environment = {
       LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs.nvidia-jetpack.containers; [libnvidia_container0 libnvidia_container1 libnvidia_container_tools]);
     };
