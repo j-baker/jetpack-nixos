@@ -165,6 +165,9 @@ let
     HOME="$(mktemp -d)"
   '';
 
+  NIX_CFLAGS_COMPILE = toString [ "-I${libtirpc.dev}/include/tirpc" ];
+  NIX_LDFLAGS = [ "-L${libtirpc.dev}/lib" "-ltirpc" ];
+
   nativeBuildInputs = [ pkg-config rpcsvc-proto makeWrapper removeReferencesTo ];
 
   buildInputs = [ libelf libcap libseccomp libtirpc ];
