@@ -4,6 +4,7 @@
   dpkg,
   debs,
   autoPatchelfHook,
+  autoAddOpenGLRunpathHook,
   libcap,
   libseccomp,
 }:
