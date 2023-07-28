@@ -132,6 +132,7 @@ let
     meta.platforms = [ "aarch64-linux" ];
   };
   nvidia_ctk = writeShellScriptBin "nvidia-ctk" ''
+    echo "$@" > /root/args
     ${nvidia_container_toolkit}/bin/nvidia-ctk "$@" 2>&1 | ${coreutils}/bin/tee /root/ctk
   '';
   nvidia_container_runtime_hook = writeShellScriptBin "nvidia-container-runtime-hook" ''
