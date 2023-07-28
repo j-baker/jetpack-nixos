@@ -135,6 +135,6 @@ in {
     nvidiaContainerRuntime = writeShellScriptBin "nvidia-container-runtime" ''
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${lib.makeLibraryPath [libnvidia_container_tools libnvidia_container0]}"
       export PATH="$PATH:${nvidia_container_toolkit}/bin"
-      exec ${nvidia_container_toolkit}/bin/nvidia-container-runtime --config "/root/flake/config.toml" "$@"
+      exec ${nvidia_container_toolkit}/bin/nvidia-container-runtime -config "/root/flake/config.toml" "$@"
     '';
 }
