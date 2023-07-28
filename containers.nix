@@ -184,21 +184,7 @@ let
       wrapProgram $out/bin/nvidia-container-cli --prefix LD_LIBRARY_PATH : ${libraryPath}
     '';
   };
-  
-   buildFromDebs {
-    name = "libnvidia-container0";
-    buildInputs = [ libcap libseccomp ];
-  };
 
-  libnvidia_container0 = buildFromDebs {
-    name = "libnvidia-container0";
-    buildInputs = [ libcap libseccomp ];
-    srcs = debs.common."libnvidia-container0".src;
-    meta.platforms = [ "aarch64-linux" ];
-    postInstall = ''
-      sed -i "s@/etc/ld.so.cache@/tmp/ld.so.cache@" "$out/libnvidia-container.so.0.11.0"
-    '';
-  };
   libnvidia_container1 = buildFromDebs {
     name = "libnvidia-container1";
     buildInputs = [ libcap libseccomp ];
