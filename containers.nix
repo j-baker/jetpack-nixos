@@ -5,6 +5,7 @@
   debs,
   autoPatchelfHook,
   autoAddOpenGLRunpathHook,
+  addOpenGLRunpath,
   libcap,
   libseccomp,
   writeShellScriptBin,
