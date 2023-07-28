@@ -187,7 +187,7 @@ in
     environment.etc."egl/egl_external_platform.d".source = "/run/opengl-driver/share/egl/egl_external_platform.d/";
 
     virtualisation.docker = lib.optionalAttrs cfg.docker {
-      daemon.settings.runtimes.nvidia = "${pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime}/bin/nvidia-container-runtime";
+      daemon.settings.runtimes.nvidia.path = "${pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime}/bin/nvidia-container-runtime";
     };
     systemd.services.docker.path = lib.optionalAttrs cfg.docker [ pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime ];
   };
