@@ -128,5 +128,6 @@ let
     meta.platforms = [ "aarch64-linux" ];
   };
 in {
+    inherit libnvidia_container0 libnvidia_container1 libnvidia_container_tools;
     nvidiaContainerRuntime = nvidia_container_toolkit;
 }
