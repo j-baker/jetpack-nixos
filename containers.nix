@@ -167,7 +167,7 @@ let
   '';
 
   NIX_CFLAGS_COMPILE = toString [ "-I${libtirpc.dev}/include/tirpc" ];
-  NIX_LDFLAGS = [ "-L${libtirpc.dev}/lib" "-ltirpc" ];
+  NIX_LDFLAGS = [ "-L${libtirpc.dev}/lib" ];
 
   nativeBuildInputs = [ pkg-config rpcsvc-proto makeWrapper removeReferencesTo ];
 
