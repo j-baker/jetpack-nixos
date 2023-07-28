@@ -11,6 +11,7 @@
   libcap,
   libtirpc,
   libseccomp,
+  substituteAll,
   writeShellScriptBin,
   coreutils,
   docker,
