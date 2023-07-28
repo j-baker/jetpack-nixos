@@ -128,5 +128,5 @@ let
     meta.platforms = [ "aarch64-linux" ];
   };
 in {
-    nvidiaContainerRuntime = nvidia_container_runtime;
+    nvidiaContainerRuntime = nvidia_container_toolkit;
 }
