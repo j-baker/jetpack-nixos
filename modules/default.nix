@@ -179,6 +179,7 @@ in
     };
 
     environment.systemPackages = with pkgs.nvidia-jetpack; [
+
       l4t-tools
       otaUtils # Tools for UEFI capsule updates
     ];
@@ -191,7 +192,7 @@ in
     };
     # systemd.services.docker.path = lib.optionalAttrs cfg.docker [ pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime ];
     systemd.services.docker.environment = {
-      LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs.nvidia-jetpack.containers; [libnvidia_container0]);
+      LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs.nvidia-jetpack.containers; []);
     };
   };
 }
