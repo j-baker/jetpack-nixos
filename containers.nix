@@ -132,7 +132,7 @@ in {
     inherit libnvidia_container0 libnvidia_container1 libnvidia_container_tools;
     # nvidiaContainerRuntime = nvidia_container_toolkit;
     nvidiaContainerRuntime = writeShellScriptBin "nvidia-container-runtime" ''
-      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${lib.makeLibraryPath [libnvidia_container_tools libnvidia_container0]}
+      export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${lib.makeLibraryPath [libnvidia_container_tools libnvidia_container0]}"
       export PATH="$PATH:${nvidia_container_toolkit}/bin"
       exec ${nvidia_container_toolkit}/bin/nvidia-container-runtime "$@"
     '';
