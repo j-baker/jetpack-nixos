@@ -12,6 +12,7 @@
   libtirpc,
   libseccomp,
   substituteAll,
+  git,
   writeShellScriptBin,
   coreutils,
   docker,
@@ -170,7 +171,7 @@ let
 
   nativeBuildInputs = [ pkg-config rpcsvc-proto makeWrapper removeReferencesTo ];
 
-  buildInputs = [ libelf libcap libseccomp libtirpc ];
+  buildInputs = [ git libelf libcap libseccomp libtirpc ];
 
   makeFlags = [
     "WITH_LIBELF=yes"
