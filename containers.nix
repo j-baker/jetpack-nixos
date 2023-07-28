@@ -122,7 +122,7 @@ let
       owner = "NVIDIA";
       repo = "libnvidia-container";
       rev = "v${version}";
-      sha256 = "sha256-7OAawWwjeKU8wIa8I/+aSvAJli4kEua94nJSNyCajpE=";
+      sha256 = "sha256-dRK0mmewNL2jIvnlk0YgCfTHuIc3BuZhIlXG5VqBQ5Q=";
     };
 
     patches = [
