@@ -7,6 +7,7 @@
   autoAddOpenGLRunpathHook,
   addOpenGLRunpath,
   fetchFromGithub,
+  libelf,
   libcap,
   libseccomp,
   writeShellScriptBin,
