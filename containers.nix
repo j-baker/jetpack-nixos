@@ -9,7 +9,7 @@
   libseccomp,
   writeShellScriptBin,
   coreutils,
-  runc,
+  docker,
   shadow,
 }:
 
@@ -136,7 +136,7 @@ in {
     # nvidiaContainerRuntime = nvidia_container_toolkit;
     nvidiaContainerRuntime = writeShellScriptBin "nvidia-container-runtime" ''
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${lib.makeLibraryPath [libnvidia_container_tools libnvidia_container0]}"
-      export PATH="$PATH:${nvidia_container_toolkit}/bin:${runc}/bin:${shadow}/bin"
+      export PATH="$PATH:${nvidia_container_toolkit}/bin:${docker}/bin:${shadow}/bin"
       exec ${nvidia_container_toolkit}/bin/nvidia-container-runtime "$@"
     '';
 }
