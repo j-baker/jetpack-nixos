@@ -189,6 +189,6 @@ in
     virtualisation.docker = lib.optional cfg.docker {
       daemon.settings.runtimes.nvidia = "${pkgs.nvidia-jetpack.nvidia-docker}/bin/nvidia-container-runtime";
     };
-    systemd.services.docker.path = lib.optional cfg.docker [ pkgs.nvidia-jetpack.nvidia-docker ];
+    systemd.services.docker.path = lib.optional cfg.docker [ pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime ];
   };
 }
