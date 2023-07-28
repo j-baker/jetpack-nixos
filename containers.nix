@@ -9,6 +9,7 @@
   fetchFromGithub,
   libelf,
   libcap,
+  libtirpc,
   libseccomp,
   writeShellScriptBin,
   coreutils,
