@@ -99,7 +99,7 @@ let
   };
   libnvidia_container1 = buildFromDebs {
     name = "libnvidia-container1";
-    buildInputs = [];
+    buildInputs = [ libcap libseccomp ];
     srcs = debs.common."libnvidia-container1".src;
     meta.platforms = [ "aarch64-linux" ];
   };
