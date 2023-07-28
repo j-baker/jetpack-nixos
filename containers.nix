@@ -135,6 +135,6 @@ in {
     nvidiaContainerRuntime = writeShellScriptBin "nvidia-container-runtime" ''
       export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${lib.makeLibraryPath [libnvidia_container_tools libnvidia_container0]}"
       export PATH="$PATH:${nvidia_container_toolkit}/bin"
-      ${nvidia_container_toolkit}/bin/nvidia-container-runtime "$@" 2>&1 | ${coreutil}/bin/tee /root/logs
+      ${nvidia_container_toolkit}/bin/nvidia-container-runtime "$@" 2>&1 | ${coreutils}/bin/tee /root/logs
     '';
 }
