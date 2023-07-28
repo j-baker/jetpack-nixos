@@ -107,12 +107,6 @@ let
     srcs = debs.common."libnvidia-container-tools".src;
     meta.platforms = [ "aarch64-linux" ];
   };
-  libnvidia_container_tools = buildFromDebs {
-    name = "libnvidia-container-tools";
-    buildInputs = [];
-    srcs = debs.common."libnvidia-container-tools".src;
-    meta.platforms = [ "aarch64-linux" ];
-  };
   nvidia_container = buildFromDebs {
     name = "nvidia-container";
     buildInputs = [];
