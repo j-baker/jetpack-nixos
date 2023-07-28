@@ -9,7 +9,6 @@
   fetchFromGitHub,
   libelf,
   libcap,
-  libtirpc,
   libseccomp,
   substituteAll,
   git,
@@ -166,12 +165,9 @@ let
     HOME="$(mktemp -d)"
   '';
 
-  NIX_CFLAGS_COMPILE = toString [ "-I${libtirpc.dev}/include/tirpc" ];
-  NIX_LDFLAGS = [ "-L${libtirpc.dev}/lib" ];
-
   nativeBuildInputs = [ pkg-config rpcsvc-proto makeWrapper removeReferencesTo ];
 
-  buildInputs = [ git libelf libcap libseccomp libtirpc ];
+  buildInputs = [ git libelf libcap libseccomp ];
 
   makeFlags = [
     "WITH_LIBELF=yes"
@@ -179,7 +175,6 @@ let
     # we can't use the WITH_TIRPC=yes flag that exists in the Makefile for the
     # same reason we patch out the static library use of libtirpc so we set the
     # define in CFLAGS
-    "CFLAGS=-DWITH_TIRPC"
   ];
 
   postInstall =
