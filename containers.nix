@@ -105,7 +105,7 @@ let
   };
   libnvidia_container_tools = buildFromDebs {
     name = "libnvidia-container-tools";
-    buildInputs = [];
+    buildInputs = [ libnvidia_container1 libcap ];
     srcs = debs.common."libnvidia-container-tools".src;
     meta.platforms = [ "aarch64-linux" ];
   };
