@@ -22,7 +22,7 @@ index b1174c8..30550c7 100644
 +                log_warnf("trying to check existence of path %s", path);
                  if (!file_exists(ctx->err, path))
                          continue;
-+                log_warnf("trying to do xstrdup thing");
++                log_info("trying to do xstrdup thing");
                  paths[j] = xstrdup(ctx->err, path);
                  if (paths[j] == NULL)
                          return (-1);
@@ -34,18 +34,18 @@ index 65f1cea..ec1aeef 100644
          info->libs = array_new(err, size);
          if (info->libs == NULL)
                  goto fail;
-+        log_warnf("got to libs");
++        log_info("got to libs");
          if (ldcache_resolve(&ld, LIB_ARCH, root, libs,
              info->libs, info->nlibs, info->nvrm_version) < 0)
                  goto fail;
-+        log_warnf("got past libs");
++        log_info("got past libs");
  
          info->nlibs32 = size;
          info->libs32 = array_new(err, size);
-+        log_warnf("got to libs32");
++        log_info("got to libs32");
          if (info->libs32 == NULL)
                  goto fail;
-+        log_warnf("got past libs32");
++        log_info("got past libs32");
          if (ldcache_resolve(&ld, LIB32_ARCH, root, libs,
              info->libs32, info->nlibs32, info->nvrm_version) < 0)
                  goto fail;
@@ -54,7 +54,7 @@ index 65f1cea..ec1aeef 100644
          else
                  ptr = array_append(ptr, graphics_libs_glvnd, nitems(graphics_libs_glvnd));
 -
-+        log_warnf("trying to find library paths");
++        log_info("trying to find library paths");
          if (find_library_paths(err, info, root, ldcache, libs, (size_t)(ptr - libs)) < 0)
                  return (-1);
  
