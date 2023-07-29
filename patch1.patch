@@ -1,0 +1,37 @@
+From faa133a476b7043be473bd9133e96f14e4b5949e Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sat, 29 Jul 2023 18:22:59 +0100
+Subject: [PATCH] patch
+
+---
+ src/nvc_info.c  | 1 +
+ src/nvc_mount.c | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/src/nvc_info.c b/src/nvc_info.c
+index 41499cd..65f1cea 100644
+--- a/src/nvc_info.c
++++ b/src/nvc_info.c
+@@ -345,6 +345,7 @@ lookup_libraries(struct error *err, struct nvc_driver_info *info, const char *ro
+         }
+         array_pack(info->libs, &info->nlibs);
+         array_pack(info->libs32, &info->nlibs32);
++        log_warnf("successfully loaded %d libs", (size_t)(ptr - libs));
+         return (0);
+ }
+ 
+diff --git a/src/nvc_mount.c b/src/nvc_mount.c
+index fc2d0ec..44df7e0 100644
+--- a/src/nvc_mount.c
++++ b/src/nvc_mount.c
+@@ -59,6 +59,7 @@ mount_files(struct error *err, const char *root, const struct nvc_container *cnt
+ 
+         for (size_t i = 0; i < size; ++i) {
+                 file = basename(paths[i]);
++                log_infof("maybe mounting %s at %s", src, dst);
+                 if (!match_binary_flags(file, cnt->flags) && !match_library_flags(file, cnt->flags))
+                         continue;
+                 if (path_append(err, src, paths[i]) < 0)
+-- 
+2.38.5
+
