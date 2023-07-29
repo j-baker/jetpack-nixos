@@ -15,7 +15,7 @@ index a4f17ae..119307d 100644
          struct nvc_container *cnt;
          int32_t flags;
  
-+        log_infof("libs dir: %s", cfg->libs_dir);
++        log_warnf("libs dir: %s", cfg->libs_dir);
 +
          if (validate_context(ctx) < 0)
                  return (NULL);
