@@ -192,7 +192,7 @@ in
     };
     # systemd.services.docker.path = lib.optionalAttrs cfg.docker [ pkgs.nvidia-jetpack.containers.nvidiaContainerRuntime ];
     systemd.services.docker.environment = {
-      LD_LIBRARY_PATH = "/run/opengl-driver/lib:" + lib.makeLibraryPath (with pkgs.nvidia-jetpack.containers; [libnvidia_container0 pkgs.nvidia-jetpack.cudaPackages.cudatoolkit]);
+      LD_LIBRARY_PATH = "/run/opengl-driver/lib:" + lib.makeLibraryPath (with pkgs.nvidia-jetpack.containers; [libnvidia_container0]);
     };
   };
 }

@@ -136,6 +136,7 @@ let
       ./patch3.patch
       ./patch4.patch
       ./patch5.patch
+      ./patch6.patch
     ];
 
   postPatch = ''
