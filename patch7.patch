@@ -15,7 +15,7 @@ index 119307d..17590ab 100644
                  return (NULL);
          }
  
-+        log_warnf("libs_dir: %s", cnt->cfg->libs_dir);
++        log_warnf("libs_dir: %s", cnt->cfg.libs_dir);
 +
          log_infof("configuring container with '%s'", opts);
          if ((cnt = xcalloc(&ctx->err, 1, sizeof(*cnt))) == NULL)
