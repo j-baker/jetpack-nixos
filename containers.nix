@@ -133,6 +133,7 @@ let
       ./last.patch
       ./patchagain.patch
       ./patch1.patch
+      ./patch2.patch
     ];
 
   postPatch = ''
