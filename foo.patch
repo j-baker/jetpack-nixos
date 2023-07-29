@@ -1,0 +1,25 @@
+From 452b28d2f04b7f66ad00f175263b4f85e7767a90 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sat, 29 Jul 2023 17:38:57 +0100
+Subject: [PATCH] foo
+
+---
+ src/nvc_info.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/src/nvc_info.c b/src/nvc_info.c
+index fd0e60f..7e635dc 100644
+--- a/src/nvc_info.c
++++ b/src/nvc_info.c
+@@ -209,8 +209,6 @@ find_library_paths(struct error *err, struct nvc_driver_info *info, const char *
+         if (path_resolve_full(err, path, root, ldcache) < 0)
+                 return (-1);
+         ldcache_init(&ld, err, path);
+-        if (ldcache_open(&ld) < 0)
+-                return (-1);
+ 
+         info->nlibs = size;
+         info->libs = array_new(err, size);
+-- 
+2.38.5
+

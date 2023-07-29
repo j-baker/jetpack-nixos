@@ -128,6 +128,7 @@ let
 
     patches = [
       ./nvc-ldcache.patch
+      ./foo.patch
       ./avoid-static-libtirpc-build.patch
     ];
 
