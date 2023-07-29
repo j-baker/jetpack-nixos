@@ -1,0 +1,24 @@
+From c0ea524922b3313f2314bc682676a1a7c92ebebd Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sat, 29 Jul 2023 18:51:24 +0100
+Subject: [PATCH] patch
+
+---
+ src/nvc_mount.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/nvc_mount.c b/src/nvc_mount.c
+index 44df7e0..7cf628e 100644
+--- a/src/nvc_mount.c
++++ b/src/nvc_mount.c
+@@ -44,6 +44,7 @@ mount_files(struct error *err, const char *root, const struct nvc_container *cnt
+         char *src_end, *dst_end, *file;
+         char **mnt, **ptr;
+ 
++        log_warnf("extra information: root: %s dir: %s", root, dir);
+         if (path_new(err, src, root) < 0)
+                 return (NULL);
+         if (path_resolve_full(err, dst, cnt->cfg.rootfs, dir) < 0)
+-- 
+2.38.5
+
