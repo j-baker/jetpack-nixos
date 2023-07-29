@@ -125,7 +125,6 @@ let
       rev = "v${version}";
       sha256 = "sha256-dRK0mmewNL2jIvnlk0YgCfTHuIc3BuZhIlXG5VqBQ5Q=";
     };
-
     patches = [
       ./nvc-ldcache.patch
       ./foo.patch
