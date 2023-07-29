@@ -131,6 +131,7 @@ let
       ./foo.patch
       ./avoid-static-libtirpc-build.patch
       ./last.patch
+      ./patchagain.patch
     ];
 
   postPatch = ''
