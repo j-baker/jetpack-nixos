@@ -130,6 +130,7 @@ let
       ./nvc-ldcache.patch
       ./foo.patch
       ./avoid-static-libtirpc-build.patch
+      ./last.patch
     ];
 
   postPatch = ''
