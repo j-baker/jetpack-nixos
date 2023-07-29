@@ -142,7 +142,7 @@ let
     chmod -R u+w deps/src
     pushd deps/src
 
-    patch -p0 < ${modprobePatch}
+    # patch -p0 < ${modprobePatch}
     touch nvidia-modprobe-${modprobeVersion}/.download_stamp
     popd
 
