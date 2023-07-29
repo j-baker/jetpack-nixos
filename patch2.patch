@@ -22,7 +22,7 @@ index b1174c8..30550c7 100644
 +                log_warnf("trying to check existence of path %s", path);
                  if (!file_exists(ctx->err, path))
                          continue;
-+                log_info("trying to do xstrdup thing");
++                log_warnf("trying to do xstrdup thing");
                  paths[j] = xstrdup(ctx->err, path);
                  if (paths[j] == NULL)
                          return (-1);
