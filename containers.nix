@@ -182,6 +182,7 @@ let
     # define in CFLAGS
     "CFLAGS=-DWITH_TIRPC"
   ];
+  };
 
   libnvidia_container1 = buildFromDebs {
     name = "libnvidia-container1";
