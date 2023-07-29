@@ -127,7 +127,7 @@ let
     };
 
     patches = [
-      ./nvc_ldcache.patch
+      ./nvc-ldcache.patch
       ./avoid-static-libtirpc-build.patch
     ];
 

@@ -1,17 +1,26 @@
+From 31a8e18fd17624d316e0c81e76cb4ab04c7b1680 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sat, 29 Jul 2023 15:34:40 +0100
+Subject: [PATCH] avoid-static-libtirpc-build
+
+---
+ Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
 diff --git a/Makefile b/Makefile
-index 0070ada..802cef0 100644
+index 709102b..2c50cc6 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -202,7 +202,7 @@ $(BIN_NAME): $(BIN_OBJS)
- ##### Public rules #####
+@@ -201,7 +201,7 @@ $(LIB_STATIC_OBJ): $(LIB_OBJS)
  
  all: CPPFLAGS += -DNDEBUG
--all: shared static tools
-+all: shared tools
+ all: STRIP  := @echo skipping: strip
+-all: shared static
++all: shared
  
  # Run with ASAN_OPTIONS="protect_shadow_gap=0" to avoid CUDA OOM errors
  debug: CFLAGS += -pedantic -fsanitize=undefined -fno-omit-frame-pointer -fno-common -fsanitize=address
-@@ -226,7 +226,6 @@ install: all
+@@ -228,7 +228,6 @@ install: all
  	# Install header files
  	$(INSTALL) -m 644 $(LIB_INCS) $(DESTDIR)$(includedir)
  	# Install library files
@@ -19,3 +28,6 @@ index 0070ada..802cef0 100644
  	$(INSTALL) -m 755 $(LIB_SHARED) $(DESTDIR)$(libdir)
  	$(LN) -sf $(LIB_SONAME) $(DESTDIR)$(libdir)/$(LIB_SYMLINK)
  	$(LDCONFIG) -n $(DESTDIR)$(libdir)
+-- 
+2.38.5
+
