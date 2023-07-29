@@ -183,15 +183,6 @@ let
     "CFLAGS=-DWITH_TIRPC"
   ];
 
-  postInstall =
-    let
-      inherit (addOpenGLRunpath) driverLink;
-      libraryPath = lib.makeLibraryPath [ "$out" driverLink "${driverLink}-32" ];
-    in
-    ''
-      wrapProgram $out/bin/nvidia-container-cli --prefix LD_LIBRARY_PATH : ${libraryPath}
-    '';
-  };
   libnvidia_container1 = buildFromDebs {
     name = "libnvidia-container1";
     buildInputs = [ libcap libseccomp ];
