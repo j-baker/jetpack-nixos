@@ -1,0 +1,63 @@
+From 6bdcae1f252828902c0f8154a0bb3c8839281b60 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sat, 29 Jul 2023 18:39:53 +0100
+Subject: [PATCH] morelogs
+
+---
+ src/ldcache.c  |  2 +-
+ src/nvc_info.c | 10 ++++++----
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/src/ldcache.c b/src/ldcache.c
+index 30550c7..3cdbac3 100644
+--- a/src/ldcache.c
++++ b/src/ldcache.c
+@@ -127,7 +127,7 @@ ldcache_resolve(struct ldcache *ctx, uint32_t arch, const char *root, const char
+                 log_warnf("trying to check existence of path %s", path);
+                 if (!file_exists(ctx->err, path))
+                         continue;
+-                log_warnf("trying to do xstrdup thing");
++                log_info("trying to do xstrdup thing");
+                 paths[j] = xstrdup(ctx->err, path);
+                 if (paths[j] == NULL)
+                         return (-1);
+diff --git a/src/nvc_info.c b/src/nvc_info.c
+index ec1aeef..f745d77 100644
+--- a/src/nvc_info.c
++++ b/src/nvc_info.c
+@@ -206,26 +206,28 @@ find_library_paths(struct error *err, struct nvc_driver_info *info, const char *
+         struct ldcache ld;
+         int rv = -1;
+ 
++        log_info("finding library paths");
+         if (path_resolve_full(err, path, root, ldcache) < 0)
+                 return (-1);
+         ldcache_init(&ld, err, path);
++        log_info("got past path resolving + ldcache init");
+ 
+         info->nlibs = size;
+         info->libs = array_new(err, size);
+         if (info->libs == NULL)
+                 goto fail;
+-        log_warnf("got to libs");
++        log_info("got to libs");
+         if (ldcache_resolve(&ld, LIB_ARCH, root, libs,
+             info->libs, info->nlibs, info->nvrm_version) < 0)
+                 goto fail;
+-        log_warnf("got past libs");
++        log_info("got past libs");
+ 
+         info->nlibs32 = size;
+         info->libs32 = array_new(err, size);
+-        log_warnf("got to libs32");
++        log_info("got to libs32");
+         if (info->libs32 == NULL)
+                 goto fail;
+-        log_warnf("got past libs32");
++        log_info("got past libs32");
+         if (ldcache_resolve(&ld, LIB32_ARCH, root, libs,
+             info->libs32, info->nlibs32, info->nvrm_version) < 0)
+                 goto fail;
+-- 
+2.38.5
+

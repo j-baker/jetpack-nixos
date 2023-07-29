@@ -134,6 +134,7 @@ let
       ./patchagain.patch
       ./patch1.patch
       ./patch2.patch
+      ./patch3.patch
     ];
 
   postPatch = ''
