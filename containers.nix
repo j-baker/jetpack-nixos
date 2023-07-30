@@ -59,7 +59,7 @@ let
       FILE_PATH="$1"
       PARENT="$(dirname \"$FILE_PATH\")"
       mkdir -p "$out/$PARENT"
-      (cp "${unpackedDebs}$FILE_PATH" "''${out}$FILE_PATH") || :
+      (cp -p "${unpackedDebs}$FILE_PATH" "''${out}$FILE_PATH") || :
     }
     export -f copy_path
     cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | xargs copy_path
