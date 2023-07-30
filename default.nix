@@ -63,7 +63,7 @@ let
 
   cudaPackages = callPackages ./cuda-packages.nix { inherit debs cudaVersion autoAddOpenGLRunpathHook l4t; };
 
-  containers = callPackages ./containers.nix { inherit debs bspSrc autoAddOpenGLRunpathHook; };
+  containers = callPackages ./containers.nix { inherit debs bspSrc; };
 
   samples = callPackages ./samples.nix { inherit debs cudaVersion autoAddOpenGLRunpathHook l4t cudaPackages; };
 
