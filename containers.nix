@@ -28,7 +28,7 @@ let
   # given this is WAY more stuff than we need, we should be able to dramatically reduce this by intersecting at extract time with l4t.csv.
   # However, this was beyond my bash skills at time of writing and I can't spare more time on this.
   # In theory, we could also filter the list of debs that have been extracted - however this will be less efficient.
-  unpackedDebs = pkgs.runCommand "newDepsForContainer" { nativeBuildInputs = [ dpkg ]; } ''
+  unpackedDebs = pkgs.runCommand "depsForContainer" { nativeBuildInputs = [ dpkg ]; } ''
     mkdir -p $out
     FILE_LIST="filelist"
     cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | sed 's#^/##g' > "$FILE_LIST"
