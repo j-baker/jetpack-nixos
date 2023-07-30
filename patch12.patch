@@ -1,0 +1,41 @@
+From 488e5c0da555281ab3698d43107bfc994415096f Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sun, 30 Jul 2023 10:16:06 +0100
+Subject: [PATCH] patch
+
+---
+ src/nvc_info.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/nvc_info.c b/src/nvc_info.c
+index 4d47089..7ffbb4c 100644
+--- a/src/nvc_info.c
++++ b/src/nvc_info.c
+@@ -560,13 +560,16 @@ lookup_jetson(struct error *err, struct nvc_driver_info *info, const char *root)
+         char **files = NULL;
+         size_t nfiles = 0;
+ 
++
+         if ((dst = xcalloc(err, 1, sizeof(struct nvc_jetson_info))) == NULL)
+                 goto fail;
++        log_info("got past 1");
+ 
+         if ((files = jetson_info_lookup_nvidia_dir(err, base, &nfiles)) == NULL) {
+                 info->jetson = dst;
+                 return 0;
+         }
++        log_info("got past 2");
+ 
+         if ((jetson_csv_file_info_list.files = xcalloc(err, nfiles, sizeof(struct jetson_csv_file_info))) == NULL)
+                 goto fail;
+@@ -589,6 +592,7 @@ lookup_jetson(struct error *err, struct nvc_driver_info *info, const char *root)
+ 
+                 dst = tmp;
+         }
++        log_info("got past 3");
+ 
+         info->jetson = dst;
+ 
+-- 
+2.38.5
+
