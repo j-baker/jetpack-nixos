@@ -53,7 +53,7 @@ let
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.t234)}
   '';
 
-  filteredDebs = pkgs.runCommand "filteredDepsForContainer" { nativeBuildInputs = [ findutils ]; } ''
+  filteredDebs = pkgs.runCommand "filteredDepsForContainer" {} ''
     set -e
     copy_path() {
       FILE_PATH="$1"
@@ -61,8 +61,9 @@ let
       mkdir -p "$out/$PARENT"
       (cp -p "${unpackedDebs}$FILE_PATH" "''${out}$FILE_PATH") || :
     }
-    export -f copy_path
-    cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | xargs copy_path
+    cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | while read LINE; do
+      copy_path "$LINE"
+    done
   '';
 
   libnvidia_container0 = stdenv.mkDerivation rec {
