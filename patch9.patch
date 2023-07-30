@@ -16,7 +16,7 @@ index 4346536..793ecce 100644
                  return (NULL);
  
 +        const char *nixos_base = "NIXOS_BASE";
-+        ctx->cfg.root = nixos_base;
++        ctx->cfg.root = strdup(nixos_base);
 +
          if (driver_get_cuda_version(&ctx->drv, &info->cuda_version) < 0)
                  goto fail;
