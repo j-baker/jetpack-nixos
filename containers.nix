@@ -78,7 +78,6 @@ let
       #./patch9.patch
       ./patch10.patch
     ];
-
   postPatch = ''
     sed -i \
       -e 's/^REVISION :=.*/REVISION = ${src.rev}/' \
