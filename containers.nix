@@ -19,7 +19,7 @@
   shadow,
   bspSrc,
   pkgs,
-  findutils
+  findutils,
 pkg-config, rpcsvc-proto, makeWrapper, removeReferencesTo,
 }:
 
