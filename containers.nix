@@ -119,15 +119,15 @@ let
   };
 
   # First, extract the l4t.xml from the root image.
-  origL4tXml = pkgs.runCommand "l4t.xml" {} ''
+  origL4tCsv = pkgs.runCommand "l4t.csv" {} ''
     tar -xf "${bspSrc}/nv_tegra/config.tbz2"
     mkdir -p "$out"
-    mv etc/nvidia-container-runtime/host-files-for-container.d/l4t.xml "$out"
+    mv etc/nvidia-container-runtime/host-files-for-container.d/l4t.csv "$out"
   '';
 
-  devicesXml = pkgs.runCommand "devices-l4t.xml" {} ''
+  devicesCsv = pkgs.runCommand "devices-l4t.csv" {} ''
     mkdir -p "$out"
-    grep "^dev," "${origL4tXml}" > "$out/l4t.xml"
+    grep "^dev," "${origL4tXml}" > "$out/l4t.csv"
   '';
 
   # Pass to libnvidia_container0.
@@ -162,7 +162,7 @@ let
       -e 's/^COMPILER :=.*/COMPILER = $(CC)/' \
       mk/common.mk
 
-    sed -i 's#/etc/nvidia-container-runtime/host-files-for-container.d#${devicesXml}#g' src/nvc_info.c
+    sed -i 's#/etc/nvidia-container-runtime/host-files-for-container.d#${devicesCsv}#g' src/nvc_info.c
 
     mkdir -p deps/src/nvidia-modprobe-${modprobeVersion}
     cp -r ${nvidia-modprobe}/* deps/src/nvidia-modprobe-${modprobeVersion}
