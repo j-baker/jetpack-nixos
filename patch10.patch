@@ -1,0 +1,50 @@
+From 4eaca3cd7e7d321e1d7c9d0826afeb61303510a2 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sun, 30 Jul 2023 09:51:37 +0100
+Subject: [PATCH] patch
+
+---
+ src/nvc_info.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/nvc_info.c b/src/nvc_info.c
+index 793ecce..61dadf1 100644
+--- a/src/nvc_info.c
++++ b/src/nvc_info.c
+@@ -404,16 +404,17 @@ lookup_ipcs(struct error *err, struct nvc_driver_info *info, const char *root, i
+ static int
+ lookup_jetson_libs(struct error *err, struct nvc_jetson_info *info, const char *root)
+ {
++        const char *nixos_base = "NIXOS_BASE";
+         char path[PATH_MAX];
+ 
+         for (size_t i = 0; i < info->nlibs; ++i) {
+-                if (path_resolve(err, path, root, info->libs[i]) < 0)
++                if (path_resolve(err, path, nixos_base, info->libs[i]) < 0)
+                         return (-1);
+ 
+                 free(info->libs[i]);
+                 info->libs[i] = NULL;
+ 
+-                if (select_libraries(err, info, root, NULL, path) < 0) {
++                if (select_libraries(err, info, nixos_base, NULL, path) < 0) {
+                         log_infof("missing library %s", path);
+                         continue;
+                 }
+@@ -431,11 +432,12 @@ lookup_jetson_libs(struct error *err, struct nvc_jetson_info *info, const char *
+ static int
+ lookup_jetson_dirs(struct error *err, struct nvc_jetson_info *info, const char *root)
+ {
++        const char *nixos_base = "NIXOS_BASE";
+         char path[PATH_MAX];
+         struct stat s;
+ 
+         for (size_t i = 0; i < info->ndirs; ++i) {
+-                if (path_resolve(err, path, root, info->dirs[i]) < 0)
++                if (path_resolve(err, path, nixos_base, info->dirs[i]) < 0)
+                         return (-1);
+ 
+                 free(info->dirs[i]);
+-- 
+2.38.5
+
