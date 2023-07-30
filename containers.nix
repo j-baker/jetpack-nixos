@@ -75,8 +75,9 @@ let
       #./patch6.patch
       #./patch7.patch
       #./patch8.patch
-      #./patch9.patch
+      ./patch9.patch
       ./patch10.patch
+      ./patch11.patch
     ];
   postPatch = ''
     sed -i \
@@ -85,7 +86,7 @@ let
       mk/common.mk
 
     sed -i 's#/etc/nvidia-container-runtime/host-files-for-container.d#${l4tCsv}#g' src/nvc_info.c
-    #sed -i 's#/NIXOS_BASE#${unpackedDebs}#g' src/jetson_mount.c
+    sed -i 's#/NIXOS_BASE#${unpackedDebs}#g' src/jetson_mount.c
     sed -i 's#/NIXOS_BASE#${unpackedDebs}#g' src/nvc_info.c
 
     mkdir -p deps/src/nvidia-modprobe-${modprobeVersion}
