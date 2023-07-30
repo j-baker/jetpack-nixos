@@ -67,13 +67,13 @@ let
       ./avoid-static-libtirpc-build.patch
       # ./last.patch
       ./patchagain.patch
-      ./patch1.patch
-      ./patch2.patch
-      ./patch3.patch
-      ./patch4.patch
-      ./patch5.patch
-      ./patch6.patch
-      ./patch7.patch
+      #./patch1.patch
+      #./patch2.patch
+      #./patch3.patch
+      #./patch4.patch
+      #./patch5.patch
+      #./patch6.patch
+      #./patch7.patch
       #./patch8.patch
       ./patch9.patch
     ];
