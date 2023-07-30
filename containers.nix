@@ -58,7 +58,7 @@ let
     patches = [
       ./nvc-ldcache.patch
       ./avoid-static-libtirpc-build.patch
-      ./nixos-base.patch
+      ./libcontainer-nixos-base.patch
     ];
     postPatch = ''
       sed -i \
