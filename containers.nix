@@ -52,7 +52,7 @@ let
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.t234)}
   '';
 
-  filteredDebs = pkgs.runCommand "filteredDepsForContainer" {} ''
+  filteredDebs = pkgs.runCommand "filteredDepsForContainer" { nativeBuildInputs = [ xargs ]; } ''
     set -e
     copy_path() {
       FILE_PATH="$1"
