@@ -30,9 +30,6 @@ let
   # In theory, we could also filter the list of debs that have been extracted - however this will be less efficient.
   unpackedDebs = pkgs.runCommand "depsForContainer" { nativeBuildInputs = [ dpkg ]; } ''
     mkdir -p $out
-    FILE_LIST="filelist"
-    cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | sed 's#^/##g' > "$FILE_LIST"
-
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.common)}
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.t234)}
   '';
