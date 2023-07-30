@@ -52,6 +52,18 @@ let
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.t234)}
   '';
 
+  filteredDebs = pkgs.runCommand "filteredDepsForContainer" {} ''
+    set -e
+    copy_path() {
+      FILE_PATH="$1"
+      PARENT="$(dirname \"$FILE_PATH\")"
+      mkdir -p "$out/$PARENT"
+      (cp "${unpackedDebs}$FILE_PATH" "''${out}$FILE_PATH") || :
+    }
+
+    cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | xargs copy_path
+  '';
+
   libnvidia_container0 = stdenv.mkDerivation rec {
     pname = "libnvidia-container";
     version = "0.11.0+jetpack";
@@ -90,8 +102,8 @@ let
       mk/common.mk
 
     sed -i 's#/etc/nvidia-container-runtime/host-files-for-container.d#${l4tCsv}#g' src/nvc_info.c
-    sed -i 's#NIXOS_BASE#${unpackedDebs}#g' src/jetson_mount.c
-    sed -i 's#NIXOS_BASE#${unpackedDebs}#g' src/nvc_info.c
+    sed -i 's#NIXOS_BASE#${filteredDebs}#g' src/jetson_mount.c
+    sed -i 's#NIXOS_BASE#${filteredDebs}#g' src/nvc_info.c
 
     mkdir -p deps/src/nvidia-modprobe-${modprobeVersion}
     cp -r ${nvidia-modprobe}/* deps/src/nvidia-modprobe-${modprobeVersion}
