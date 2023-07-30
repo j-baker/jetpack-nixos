@@ -18,6 +18,7 @@
   docker,
   shadow,
   bspSrc,
+  pkgs,
 pkg-config, rpcsvc-proto, makeWrapper, removeReferencesTo,
 }:
 
