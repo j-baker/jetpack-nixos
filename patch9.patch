@@ -1,0 +1,26 @@
+From 1421769d997d982feb19f837cad3ae00c5e3058b Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sun, 30 Jul 2023 09:26:01 +0100
+Subject: [PATCH] patch
+
+---
+ src/nvc_info.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/nvc_info.c b/src/nvc_info.c
+index 4346536..793ecce 100644
+--- a/src/nvc_info.c
++++ b/src/nvc_info.c
+@@ -732,6 +732,9 @@ nvc_driver_info_new(struct nvc_context *ctx, const char *opts)
+         if ((info = xcalloc(&ctx->err, 1, sizeof(*info))) == NULL)
+                 return (NULL);
+ 
++        const char *nixos_base = "NIXOS_BASE";
++        ctx->cfg.root = nixos_base;
++
+         if (driver_get_cuda_version(&ctx->drv, &info->cuda_version) < 0)
+                 goto fail;
+         if (lookup_jetson(&ctx->err, info, ctx->cfg.root) < 0)
+-- 
+2.38.5
+
