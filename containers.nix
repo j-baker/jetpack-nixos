@@ -17,6 +17,7 @@
   coreutils,
   docker,
   shadow,
+  bspSrc,
 pkg-config, rpcsvc-proto, makeWrapper, removeReferencesTo,
 }:
 
@@ -116,6 +117,20 @@ let
     inherit modprobeVersion;
   };
 
+  # First, extract the l4t.xml from the root image.
+  origL4tXml = pkgs.runCommand "l4t.xml" {} ''
+    tar -xf "${bspSrc}/nv_tegra/config.tbz2"
+    mkdir -p "$out"
+    mv etc/nvidia-container-runtime/host-files-for-container.d/l4t.xml "$out"
+  '';
+
+  devicesXml = pkgs.runCommand "devices-l4t.xml" {} ''
+    mkdir -p "$out"
+    grep "^dev," "${origL4tXml}" > "$out/l4t.xml"
+  '';
+
+  # Pass to libnvidia_container0.
+
   libnvidia_container0 = stdenv.mkDerivation rec {
     pname = "libnvidia-container";
     version = "0.11.0+jetpack";
@@ -145,6 +160,8 @@ let
       -e 's/^REVISION :=.*/REVISION = ${src.rev}/' \
       -e 's/^COMPILER :=.*/COMPILER = $(CC)/' \
       mk/common.mk
+
+    sed -i 's#/etc/nvidia-container-runtime/host-files-for-container.d#${devicesXml}#g' src/nvc_info.c
 
     mkdir -p deps/src/nvidia-modprobe-${modprobeVersion}
     cp -r ${nvidia-modprobe}/* deps/src/nvidia-modprobe-${modprobeVersion}
