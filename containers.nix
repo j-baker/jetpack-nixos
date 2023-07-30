@@ -86,6 +86,7 @@ let
 
     sed -i 's#/etc/nvidia-container-runtime/host-files-for-container.d#${l4tCsv}#g' src/nvc_info.c
     sed -i 's#/NIXOS_BASE#${unpackedDebs}#g' src/jetson_mount.c
+    sed -i 's#/NIXOS_BASE#${unpackedDebs}#g' src/nvc_info.c
 
     mkdir -p deps/src/nvidia-modprobe-${modprobeVersion}
     cp -r ${nvidia-modprobe}/* deps/src/nvidia-modprobe-${modprobeVersion}
