@@ -119,18 +119,18 @@ let
   };
 
   # First, extract the l4t.xml from the root image.
-  origL4tCsv = pkgs.runCommand "l4t.csv" {} ''
+  l4tCsv = pkgs.runCommand "l4t.csv" {} ''
     tar -xf "${bspSrc}/nv_tegra/config.tbz2"
     mkdir -p "$out"
     mv etc/nvidia-container-runtime/host-files-for-container.d/l4t.csv "$out"
   '';
 
-  devicesCsv = pkgs.runCommand "devices-l4t.csv" {} ''
-    mkdir -p "$out"
-    grep "^dev," "${origL4tCsv}/l4t.csv" > "$out/l4t.csv"
+  # make a single sources root of all the debs. TODO filter down to those that matter.
+  unpackedDebs = pkgs.runCommand "depsForContainer" { nativeBuildInputs = [ dpkg ]; } ''
+    mkdir -p $out
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.common)}
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.t234)}
   '';
-
-  # Pass to libnvidia_container0.
 
   libnvidia_container0 = stdenv.mkDerivation rec {
     pname = "libnvidia-container";
@@ -154,6 +154,7 @@ let
       ./patch5.patch
       ./patch6.patch
       ./patch7.patch
+      ./patch8.patch
     ];
 
   postPatch = ''
@@ -163,6 +164,7 @@ let
       mk/common.mk
 
     sed -i 's#/etc/nvidia-container-runtime/host-files-for-container.d#${devicesCsv}#g' src/nvc_info.c
+    sed -i 's#/NIXOS_BASE#${unpackeDebs}#g' src/jetson_mount.c
 
     mkdir -p deps/src/nvidia-modprobe-${modprobeVersion}
     cp -r ${nvidia-modprobe}/* deps/src/nvidia-modprobe-${modprobeVersion}

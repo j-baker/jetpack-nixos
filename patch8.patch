@@ -1,0 +1,50 @@
+From c082557c7f59865331595d95f86543c59cab18e0 Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sun, 30 Jul 2023 08:50:43 +0100
+Subject: [PATCH] patch
+
+---
+ src/jetson_mount.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/jetson_mount.c b/src/jetson_mount.c
+index 1c5d9de..0e3e809 100644
+--- a/src/jetson_mount.c
++++ b/src/jetson_mount.c
+@@ -36,6 +36,7 @@ resolve_symlink(struct error *err, const char *src, char *dst)
+ char **
+ mount_jetson_files(struct error *err, const char *root, const struct nvc_container *cnt, char *paths[], size_t size)
+ {
++        const char *nixos_base = "NIXOS_BASE";
+         char src[PATH_MAX];
+         char dst[PATH_MAX];
+         mode_t mode;
+@@ -50,7 +51,7 @@ mount_jetson_files(struct error *err, const char *root, const struct nvc_contain
+                     !match_jetson_directory_flags(paths[i], cnt->flags))
+                         continue;
+ 
+-                if (path_new(err, src, root) < 0)
++                if (path_new(err, src, nixos_base) < 0)
+                         goto fail;
+                 if (path_new(err, dst, cnt->cfg.rootfs) < 0)
+                         goto fail;
+@@ -86,6 +87,7 @@ mount_jetson_files(struct error *err, const char *root, const struct nvc_contain
+ int
+ create_jetson_symlinks(struct error *err, const char *root, const struct nvc_container *cnt, char *paths[], size_t size)
+ {
++        const char *nixos_base = "NIXOS_BASE";
+         char src[PATH_MAX];
+         char src_lnk[PATH_MAX];
+         char dst[PATH_MAX];
+@@ -94,7 +96,7 @@ create_jetson_symlinks(struct error *err, const char *root, const struct nvc_con
+                 if (!match_jetson_symlink_flags(paths[i], cnt->flags))
+                         continue;
+ 
+-                if (path_new(err, src, root) < 0)
++                if (path_new(err, src, nixos_base) < 0)
+                         return (-1);
+                 if (path_new(err, dst, cnt->cfg.rootfs) < 0)
+                         return (-1);
+-- 
+2.38.5
+
