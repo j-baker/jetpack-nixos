@@ -63,9 +63,9 @@ let
     };
     patches = [
       ./nvc-ldcache.patch
-      ./foo.patch
+      # ./foo.patch
       ./avoid-static-libtirpc-build.patch
-      ./last.patch
+      # ./last.patch
       ./patchagain.patch
       ./patch1.patch
       ./patch2.patch
