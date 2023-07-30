@@ -3,29 +3,39 @@
   stdenv,
   dpkg,
   debs,
-  autoPatchelfHook,
-  autoAddOpenGLRunpathHook,
-  addOpenGLRunpath,
   fetchFromGitHub,
   libelf,
   libcap,
   libtirpc,
   libseccomp,
   substituteAll,
-  git,
-  writeShellScriptBin,
-  coreutils,
-  docker,
-  shadow,
   bspSrc,
   pkgs,
-  findutils,
-pkg-config, rpcsvc-proto, makeWrapper, removeReferencesTo,
+  pkg-config,
+  rpcsvc-proto,
 }:
 
 
 let
-  debsForSourcePackage = srcPackageName: lib.filter (pkg: (pkg.source or "") == srcPackageName) (builtins.attrValues debs.common);
+  # First, extract the l4t.xml from the root image to know what packages are expected to be present.
+  l4tCsv = pkgs.runCommand "l4t.csv" {} ''
+    tar -xf "${bspSrc}/nv_tegra/config.tbz2"
+    mkdir -p "$out"
+    mv etc/nvidia-container-runtime/host-files-for-container.d/l4t.csv "$out"
+  '';
+
+  # make a single sources root of all the debs.
+  # given this is WAY more stuff than we need, we should be able to dramatically reduce this by intersecting at extract time with l4t.csv.
+  # However, this was beyond my bash skills at time of writing and I can't spare more time on this.
+  # In theory, we could also filter the list of debs that have been extracted - however this will be less efficient.
+  unpackedDebs = pkgs.runCommand "newDepsForContainer" { nativeBuildInputs = [ dpkg ]; } ''
+    mkdir -p $out
+    FILE_LIST="filelist"
+    cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | sed 's#^/##g' > "$FILE_LIST"
+
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.common)}
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.t234)}
+  '';
 
   modprobeVersion = "396.51";
   nvidia-modprobe = fetchFromGitHub {
@@ -39,23 +49,6 @@ let
     inherit modprobeVersion;
   };
 
-  # First, extract the l4t.xml from the root image.
-  l4tCsv = pkgs.runCommand "l4t.csv" {} ''
-    tar -xf "${bspSrc}/nv_tegra/config.tbz2"
-    mkdir -p "$out"
-    mv etc/nvidia-container-runtime/host-files-for-container.d/l4t.csv "$out"
-  '';
-
-  # make a single sources root of all the debs. TODO filter down to those that matter.
-  unpackedDebs = pkgs.runCommand "newDepsForContainer" { nativeBuildInputs = [ dpkg ]; } ''
-    mkdir -p $out
-    FILE_LIST="filelist"
-    cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | sed 's#^/##g' > "$FILE_LIST"
-
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg --fsys-tarfile ${p.src} | tar -x -T $FILE_LIST $out") debs.common)}
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg --fsys-tarfile ${p.src} | tar -x -T $FILE_LIST $out") debs.t234)}
-  '';
-
   libnvidia_container0 = stdenv.mkDerivation rec {
     pname = "libnvidia-container";
     version = "0.11.0+jetpack";
@@ -67,25 +60,10 @@ let
     };
     patches = [
       ./nvc-ldcache.patch
-      #./foo.patch
       ./avoid-static-libtirpc-build.patch
-      # ./last.patch
-      ./patchagain.patch
-      #./patch1.patch
-      #./patch2.patch
-      #./patch3.patch
-      #./patch4.patch
-      #./patch5.patch
-      #./patch6.patch
-      #./patch7.patch
       ./patch8.patch
-      #./patch9.patch
-      ./patch10.patch
       ./patch11.patch
-      ./patch12.patch
       ./patch13.patch
-      ./patch14.patch
-      ./patch15.patch
     ];
   postPatch = ''
     sed -i \
@@ -130,9 +108,9 @@ let
   NIX_CFLAGS_COMPILE = toString [ "-I${libtirpc.dev}/include/tirpc" ];
   NIX_LDFLAGS = [ "-L${libtirpc}/lib" "-ltirpc" ];
 
-  nativeBuildInputs = [ pkg-config rpcsvc-proto makeWrapper removeReferencesTo ];
+  nativeBuildInputs = [ pkg-config rpcsvc-proto ];
 
-  buildInputs = [ git libelf libcap libseccomp libtirpc ];
+  buildInputs = [ libelf libcap libseccomp libtirpc ];
 
   makeFlags = [
     "WITH_LIBELF=yes"
