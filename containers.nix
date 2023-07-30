@@ -74,7 +74,7 @@ let
       #./patch5.patch
       #./patch6.patch
       #./patch7.patch
-      #./patch8.patch
+      ./patch8.patch
       #./patch9.patch
       ./patch10.patch
       ./patch11.patch
