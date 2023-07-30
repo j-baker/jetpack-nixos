@@ -79,6 +79,7 @@ let
       ./patch10.patch
       ./patch11.patch
       ./patch12.patch
+      ./patch13.patch
     ];
   postPatch = ''
     sed -i \
