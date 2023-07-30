@@ -127,7 +127,7 @@ let
 
   devicesCsv = pkgs.runCommand "devices-l4t.csv" {} ''
     mkdir -p "$out"
-    grep "^dev," "${origL4tXml}" > "$out/l4t.csv"
+    grep "^dev," "${origL4tCsv}" > "$out/l4t.csv"
   '';
 
   # Pass to libnvidia_container0.
