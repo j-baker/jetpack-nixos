@@ -1,0 +1,58 @@
+From 71a8c7ef6f543adfff911844d705a3ed684c497a Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Sun, 30 Jul 2023 10:46:05 +0100
+Subject: [PATCH] patch
+
+---
+ src/nvc_container.c |  4 +++-
+ src/nvc_mount.c     | 10 +++++++---
+ 2 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/src/nvc_container.c b/src/nvc_container.c
+index 119307d..766bf10 100644
+--- a/src/nvc_container.c
++++ b/src/nvc_container.c
+@@ -234,8 +234,10 @@ lookup_owner(struct error *err, struct nvc_container *cnt)
+         prefix = (cnt->flags & OPT_STANDALONE) ? cnt->cfg.rootfs : "";
+         if (xsnprintf(err, path, sizeof(path), "%s"PROC_PID, prefix, (int32_t)cnt->cfg.pid) < 0)
+                 return (-1);
+-        if (xstat(err, path, &s) < 0)
++        if (xstat(err, path, &s) < 0) {
++                log_infof("stat failed lookup owner - %s", path);
+                 return (-1);
++        }
+         cnt->uid = s.st_uid;
+         cnt->gid = s.st_gid;
+         return (0);
+diff --git a/src/nvc_mount.c b/src/nvc_mount.c
+index 7cf628e..531a260 100644
+--- a/src/nvc_mount.c
++++ b/src/nvc_mount.c
+@@ -104,8 +104,10 @@ mount_device(struct error *err, const char *root, const struct nvc_container *cn
+                 return (NULL);
+         if (path_resolve_full(err, dst, cnt->cfg.rootfs, dev) < 0)
+                 return (NULL);
+-        if (xstat(err, src, &s) < 0)
+-                return (NULL);
++        if (xstat(err, src, &s) < 0) {
++                log_infof("stat failed: mount_device %s", src);
++                return (NULL);        
++        }
+         if (file_mode(err, src, &mode) < 0)
+                 return (NULL);
+         if (file_create(err, dst, NULL, cnt->uid, cnt->gid, mode) < 0)
+@@ -340,8 +342,10 @@ setup_cgroup(struct error *err, const char *cgroup, const char *dev)
+         struct stat s;
+         dev_t id;
+ 
+-        if (xstat(err, dev, &s) != 0)
++        if (xstat(err, dev, &s) != 0) {
++                log_info("stat failed: setup_cgroup");
+                 return (-1);
++        }
+ 
+         id = s.st_rdev;
+ 
+-- 
+2.38.5
+
