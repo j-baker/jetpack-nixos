@@ -47,23 +47,13 @@ let
   '';
 
   # make a single sources root of all the debs. TODO filter down to those that matter.
-  unpackedDebs = pkgs.runCommand "depsForContainer" { nativeBuildInputs = [ dpkg ]; } ''
+  unpackedDebs = pkgs.runCommand "newDepsForContainer" { nativeBuildInputs = [ dpkg ]; } ''
     mkdir -p $out
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.common)}
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg -x ${p.src} $out") debs.t234)}
-  '';
+    FILE_LIST="filelist"
+    cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | sed 's#^/##g' > "$FILE_LIST"
 
-  filteredDebs = pkgs.runCommand "filteredDepsForContainer" {} ''
-    set -e
-    copy_path() {
-      FILE_PATH="$1"
-      PARENT="$(dirname \"$FILE_PATH\")"
-      mkdir -p "$out/$PARENT"
-      (cp -p "${unpackedDebs}$FILE_PATH" "''${out}$FILE_PATH") || :
-    }
-    cat "${l4tCsv}/l4t.csv" | tr -d ' ' | cut -f2 -d',' | while read LINE; do
-      copy_path "$LINE"
-    done
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg --fsys-tarfile ${p.src} | tar -x -T $FILE_LIST $out") debs.common)}
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (n: p: "echo Unpacking ${n}; dpkg --fsys-tarfile ${p.src} | tar -x -T $FILE_LIST $out") debs.t234)}
   '';
 
   libnvidia_container0 = stdenv.mkDerivation rec {
@@ -104,8 +94,8 @@ let
       mk/common.mk
 
     sed -i 's#/etc/nvidia-container-runtime/host-files-for-container.d#${l4tCsv}#g' src/nvc_info.c
-    sed -i 's#NIXOS_BASE#${filteredDebs}#g' src/jetson_mount.c
-    sed -i 's#NIXOS_BASE#${filteredDebs}#g' src/nvc_info.c
+    sed -i 's#NIXOS_BASE#${unpackedDebs}#g' src/jetson_mount.c
+    sed -i 's#NIXOS_BASE#${unpackedDebs}#g' src/nvc_info.c
 
     mkdir -p deps/src/nvidia-modprobe-${modprobeVersion}
     cp -r ${nvidia-modprobe}/* deps/src/nvidia-modprobe-${modprobeVersion}
