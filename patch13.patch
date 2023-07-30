@@ -29,33 +29,25 @@ index 7ffbb4c..3ac4ece 100644
  {
          struct csv ctx;
          int rv = -1;
-@@ -530,17 +530,25 @@ parse_file(struct error *err, const char *path, const char *root, struct nvc_jet
+@@ -530,17 +530,17 @@ parse_file(struct error *err, const char *path, const char *root, struct nvc_jet
          if (csv_parse(&ctx, jetson) < 0)
                  goto fail;
  
 -        if (lookup_jetson_libs(err, jetson, root) < 0)
-+        if (lookup_jetson_libs(err, jetson, nixos_root) < 0) {
-+                log_info("fail libs");
++        if (lookup_jetson_libs(err, jetson, nixos_root) < 0)
                  goto fail;
-+        }
  
 -        if (lookup_jetson_dirs(err, jetson, root) < 0)
-+        if (lookup_jetson_dirs(err, jetson, nixos_root) < 0) {
-+                log_info("fail dirs");
++        if (lookup_jetson_dirs(err, jetson, nixos_root) < 0)
                  goto fail;
-+        }
  
 -        if (lookup_jetson_devices(err, jetson, root) < 0)
-+        if (lookup_jetson_devices(err, jetson, root) < 0) {
-+                log_info("fail devices");
++        if (lookup_jetson_devices(err, jetson, root) < 0)
                  goto fail;
-+        }
  
 -        if (lookup_jetson_symlinks(err, jetson, root) < 0)
-+        if (lookup_jetson_symlinks(err, jetson, nixos_root) < 0) {
-+                log_info("fail symlinks");
++        if (lookup_jetson_symlinks(err, jetson, nixos_root) < 0)
                  goto fail;
-+        }
  
          rv = 0;
  
