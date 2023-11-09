@@ -1,6 +1,7 @@
 { lib, callPackage, runCommand, writeScript, writeShellApplication, makeInitrd, makeModulesClosure,
-  flashFromDevice, edk2-jetson, uefi-firmware, flash-tools, buildTOS,
-  python3, bspSrc, openssl, dtc,
+  flashFromDevice, edk2-jetson, uefi-firmware, flash-tools, buildTOS, buildOpteeTaDevKit, opteeClient,
+  python3, openssl_1_1, dtc,
+
   l4tVersion,
   pkgsAarch64,
 }:
@@ -17,22 +18,30 @@ let
     else throw "Unknown SoC type";
 
   inherit (cfg.flashScriptOverrides)
-    flashArgs fuseArgs partitionTemplate additionalDtbOverlays;
+    flashArgs fuseArgs partitionTemplate;
 
-  tosImage = buildTOS {
+  flash-tools-patched = flash-tools.overrideAttrs ({ patches ? [], postPatch ? "", ... }: {
+    patches = patches ++ cfg.flashScriptOverrides.patches;
+    postPatch = postPatch + cfg.flashScriptOverrides.postPatch;
+  });
+
+  tosArgs = {
     inherit socType;
     inherit (cfg.firmware.optee) taPublicKeyFile;
     opteePatches = cfg.firmware.optee.patches;
     extraMakeFlags = cfg.firmware.optee.extraMakeFlags;
   };
+  tosImage = buildTOS tosArgs;
+  taDevKit = buildOpteeTaDevKit tosArgs;
 
-  uefiDefaultKeysDtbo = runCommand "UefiDefaultSecurityKeys.dtbo" { nativeBuildInputs = [ dtc ]; } ''
-    export pkDefault=$(od -t x1 -An "${cfg.firmware.uefi.secureBoot.defaultPkEslFile}")
-    export kekDefault=$(od -t x1 -An "${cfg.firmware.uefi.secureBoot.defaultKekEslFile}")
-    export dbDefault=$(od -t x1 -An "${cfg.firmware.uefi.secureBoot.defaultDbEslFile}")
-    substituteAll ${./uefi-default-keys.dts} keys.dts
-    dtc -I dts -O dtb keys.dts -o $out
-  '';
+  teeSupplicant = opteeClient.overrideAttrs (old: {
+    pname = "tee-supplicant";
+    buildFlags = (old.buildFlags or []) ++ [ "CFG_TEE_CLIENT_LOAD_PATH=${cfg.firmware.optee.clientLoadPath}" ];
+    # remove unneeded headers
+    postInstall = ''
+      rm -rf $out/include
+    '';
+  });
 
   # TODO: Unify with fuseScript below
   mkFlashScript = args: import ./flash-script.nix ({
@@ -40,15 +49,14 @@ let
 
     inherit (cfg.flashScriptOverrides) additionalDtbOverlays;
 
-    flash-tools = flash-tools.overrideAttrs ({ postPatch ? "", ... }: {
-      postPatch = postPatch + cfg.flashScriptOverrides.postPatch;
-    });
+    flash-tools = flash-tools-patched;
 
     uefi-firmware = uefi-firmware.override ({
       bootLogo = cfg.firmware.uefi.logo;
       debugMode = cfg.firmware.uefi.debugMode;
       errorLevelInfo = cfg.firmware.uefi.errorLevelInfo;
       edk2NvidiaPatches = cfg.firmware.uefi.edk2NvidiaPatches;
+      edk2UefiPatches = cfg.firmware.uefi.edk2UefiPatches;
     } // lib.optionalAttrs cfg.firmware.uefi.capsuleAuthentication.enable {
       inherit (cfg.firmware.uefi.capsuleAuthentication) trustedPublicCertPemFile;
     });
@@ -61,10 +69,79 @@ let
     dtbsDir = config.hardware.deviceTree.package;
   } // args);
 
+  # This produces a script where we have already called the ./flash.sh script
+  # with `--no-flash` and produced a file under bootloader/flashcmd.txt.
+  # This requires setting various BOARD* environment variables to the exact
+  # board being flashed. These are set by the firmware.variants option.
+  #
+  # The output of this should be something we can take anywhere and doesn't
+  # require any additional signing or other dynamic behavior
+  mkFlashCmdScript = args: let
+    variant =
+      if builtins.length cfg.firmware.variants != 1
+      then throw "mkFlashCmdScript requires exactly one Jetson variant set in hardware.nvidia-jetson.firmware.variants"
+      else builtins.elemAt cfg.firmware.variants 0;
+
+    # Use the flash-tools produced by mkFlashScript, we need whatever changes
+    # the script made, as well as the flashcmd.txt from it
+    flash-tools-flashcmd = runCommand "flash-tools-flashcmd" {
+      # Needed for signing
+      inherit (cfg.firmware.secureBoot) requiredSystemFeatures;
+    } ''
+      export BOARDID=${variant.boardid}
+      export BOARDSKU=${variant.boardsku}
+      export FAB=${variant.fab}
+      export BOARDREV=${variant.boardrev}
+      export CHIP_SKU=${variant.chiprev}
+
+      ${cfg.firmware.secureBoot.preSignCommands}
+
+      ${mkFlashScript (args // { flashArgs = [ "--no-root-check" "--no-flash" ] ++ (args.flashArgs or flashArgs); }) }
+
+      cp -r ./ $out
+    '';
+    # TODO: Do we also need these? Set in l4t_create_images_for_kernel_flash.sh
+    # export RAMCODE_ID
+    # export RAMCODE
+  in import ./flashcmd-script.nix {
+    inherit lib;
+    flash-tools = flash-tools-flashcmd;
+  };
+
+  # With either produce a standard flash script, which does variant detection,
+  # or if there is only a single variant, will produce a script specialized to
+  # that particular variant.
+  mkFlashScriptAuto = if builtins.length cfg.firmware.variants == 1 then mkFlashCmdScript else mkFlashScript;
+
   # Generate a flash script using the built configuration options set in a NixOS configuration
   flashScript = writeShellApplication {
     name = "flash-${hostName}";
-    text = (mkFlashScript {});
+    text = (mkFlashScriptAuto {});
+  };
+
+  # Produces a script that boots a given kernel, initrd, and cmdline using the RCM boot method
+  mkRcmBootScript = { kernelPath, initrdPath, kernelCmdline }: mkFlashScriptAuto {
+    preFlashCommands = ''
+      cp ${kernelPath} kernel/Image
+      cp ${initrdPath}/initrd bootloader/l4t_initrd.img
+
+      export CMDLINE="${builtins.toString kernelCmdline}"
+      export INITRD_IN_BOOTIMG="yes"
+    '';
+    flashArgs = [ "--rcm-boot" ] ++ cfg.flashScriptOverrides.flashArgs;
+  };
+
+  # Produces a script which boots into this NixOS system via RCM mode
+  # TODO: This doesn't work currently because `rcmBoot` would need to be built
+  # on x86_64, and the machine in `config` should be aarch64-linux
+  rcmBoot = writeShellApplication {
+    name = "rcmboot-nixos";
+    text = mkRcmBootScript {
+      # See nixpkgs nixos/modules/system/activatation/top-level.nix for standard usage of these paths
+      kernelPath = "${config.boot.kernelPackages.kernel}/${config.system.boot.loader.kernelFile}";
+      initrdPath = "${config.system.build.initialRamdisk}/${config.system.boot.loader.initrdFile}";
+      kernelCmdline = "init=${config.system.build.toplevel}/init initrd=initrd ${toString config.boot.kernelParams}";
+    };
   };
 
   # TODO: The flash script should not have the kernel output in its runtime closure
@@ -98,9 +175,7 @@ let
       fi
     '';
     initrd = makeInitrd {
-      contents = let
-        kernel = config.boot.kernelPackages.kernel;
-      in [
+      contents = [
         { object = jetpack-init; symlink = "/init"; }
         { object = "${modulesClosure}/lib/modules"; symlink = "/lib/modules"; }
         { object = "${modulesClosure}/lib/firmware"; symlink = "/lib/firmware"; }
@@ -108,27 +183,22 @@ let
     };
   in writeShellApplication {
     name = "initrd-flash-${hostName}";
-    text = mkFlashScript {
-      preFlashCommands = ''
-        cp ${config.boot.kernelPackages.kernel}/Image kernel/Image
-        cp ${initrd}/initrd bootloader/l4t_initrd.img
-
-        export CMDLINE="initrd=initrd console=ttyTCU0,115200"
-        export INITRD_IN_BOOTIMG="yes"
-      '';
-      flashArgs = [ "--rcm-boot" ] ++ cfg.flashScriptOverrides.flashArgs;
-      postFlashCommands = ''
-        echo
-        echo "Jetson device should now be flashing and will reboot when complete."
-        echo "You may watch the progress of this on the device's serial port"
-      '';
-    };
+    text = ''
+      ${mkRcmBootScript {
+        kernelPath = "${config.boot.kernelPackages.kernel}/Image";
+        initrdPath = initrd;
+        kernelCmdline = "initrd=initrd console=ttyTCU0,115200";
+      }}
+      echo
+      echo "Jetson device should now be flashing and will reboot when complete."
+      echo "You may watch the progress of this on the device's serial port"
+    '';
   };
 
   signedFirmware = runCommand "signed-${hostName}-${l4tVersion}" {
     inherit (cfg.firmware.secureBoot) requiredSystemFeatures;
   } (mkFlashScript {
-    flashCommands = lib.concatMapStringsSep "\n" (v: with v; ''
+    flashCommands = cfg.firmware.secureBoot.preSignCommands + lib.concatMapStringsSep "\n" (v: with v; ''
       BOARDID=${boardid} BOARDSKU=${boardsku} FAB=${fab} BOARDREV=${boardrev} FUSELEVEL=${fuselevel} CHIPREV=${chiprev} ./flash.sh ${lib.optionalString (partitionTemplate != null) "-c flash.xml"} --no-root-check --no-flash --sign ${builtins.toString flashArgs}
 
       outdir=$out/${boardid}-${fab}-${boardsku}-${boardrev}-${if fuselevel == "fuselevel_production" then "1" else "0"}-${chiprev}--
@@ -159,8 +229,8 @@ let
   bup = runCommand "bup-${hostName}-${l4tVersion}" {
     inherit (cfg.firmware.secureBoot) requiredSystemFeatures;
   } ((mkFlashScript {
-    flashCommands = let
-    in lib.concatMapStringsSep "\n" (v: with v;
+    # TODO: Remove preSignCommands when we switch to using signedFirmware directly
+    flashCommands = cfg.firmware.secureBoot.preSignCommands + lib.concatMapStringsSep "\n" (v: with v;
       "BOARDID=${boardid} BOARDSKU=${boardsku} FAB=${fab} BOARDREV=${boardrev} FUSELEVEL=${fuselevel} CHIPREV=${chiprev} ./flash.sh ${lib.optionalString (partitionTemplate != null) "-c flash.xml"} --no-flash --bup --multi-spec ${builtins.toString flashArgs}"
     ) cfg.firmware.variants;
   }) + ''
@@ -172,10 +242,11 @@ let
   # python ${edk2-jetson}/BaseTools/BinWrappers/PosixLike/GenerateCapsule -v --encode --monotonic-count 1
   # NOTE: providing null public certs here will use the test certs in the EDK2 repo
   uefiCapsuleUpdate = runCommand "uefi-${hostName}-${l4tVersion}.Cap" {
-    nativeBuildInputs = [ python3 openssl ];
+    nativeBuildInputs = [ python3 openssl_1_1 ];
     inherit (cfg.firmware.uefi.capsuleAuthentication) requiredSystemFeatures;
   } (''
-    bash ${bspSrc}/generate_capsule/l4t_generate_soc_capsule.sh \
+    ${cfg.firmware.uefi.capsuleAuthentication.preSignCommands}
+    bash ${flash-tools-patched}/generate_capsule/l4t_generate_soc_capsule.sh \
   '' + (lib.optionalString cfg.firmware.uefi.capsuleAuthentication.enable ''
       --trusted-public-cert ${cfg.firmware.uefi.capsuleAuthentication.trustedPublicCertPemFile} \
       --other-public-cert ${cfg.firmware.uefi.capsuleAuthentication.otherPublicCertPemFile} \
@@ -186,14 +257,11 @@ let
       ${socType}
   '');
 
-  # TODO: Unify with fuse-script using the correct parameterization
   fuseScript = writeShellApplication {
     name = "fuse-${hostName}";
     text = import ./fuse-script.nix {
       inherit lib;
-      flash-tools = flash-tools.overrideAttrs ({ postPatch ? "", ... }: {
-        postPatch = postPatch + cfg.flashScriptOverrides.postPatch;
-      });
+      flash-tools = flash-tools-patched;
       inherit fuseArgs;
 
       chipId = if cfg.som == null then null
@@ -204,6 +272,7 @@ let
   };
 in {
   inherit (tosImage) nvLuksSrv hwKeyAgent;
-  inherit mkFlashScript;
-  inherit flashScript initrdFlashScript tosImage signedFirmware bup fuseScript uefiCapsuleUpdate;
+  inherit mkFlashScript mkFlashCmdScript mkFlashScriptAuto;
+  inherit flashScript initrdFlashScript tosImage taDevKit teeSupplicant signedFirmware bup fuseScript uefiCapsuleUpdate;
+  inherit mkRcmBootScript rcmBoot;
 }
